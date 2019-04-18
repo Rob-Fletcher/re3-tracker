@@ -170,7 +170,7 @@ class BatchCacheServer:
         self.image_paths.append(image_paths)
 
     def create_keys(self):
-        self.add_dataset('imagenet_video')
+        self.add_dataset('cfa')
         time.sleep(1)
 
     def lookup_func(self, key):
@@ -247,4 +247,3 @@ if __name__ == '__main__':
             dest='debug')
     args = parser.parse_args()
     main(args)
-

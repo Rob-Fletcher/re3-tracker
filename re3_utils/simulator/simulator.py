@@ -17,6 +17,7 @@ from re3_utils.util.IOU import *
 from re3_utils.simulator import TrackedObject
 from constants import CROP_SIZE
 from constants import CROP_PAD
+from constants import DATA_DIR
 
 OBJECT_PAD = 4
 MAX_NEG_IOU_THRESH = .3
@@ -56,27 +57,30 @@ set_crop_size(CROP_SIZE)
 
 def make_paths(train=True):
     global IMAGE_NAMES, BOXES
-    base_path = os.path.join(
-            os.path.dirname(__file__),
-            os.path.pardir,
-            os.path.pardir,
-            'training',
-            'datasets',
-            'imagenet_detection')
-    image_datadir = os.path.join(
-            os.path.dirname(__file__),
-            os.path.pardir,
-            os.path.pardir,
-            'training',
-            'datasets',
-            'imagenet_detection')
+    #base_path = os.path.join(
+            #os.path.dirname(__file__),
+            #os.path.pardir,
+            #os.path.pardir,
+            #'training',
+            #'datasets',
+            #'imagenet_detection')
+    #image_datadir = os.path.join(
+            #os.path.dirname(__file__),
+            #os.path.pardir,
+            #os.path.pardir,
+            #'training',
+            #'datasets',
+            #'imagenet_detection')
+    base_path = DATA_DIR
+    image_datadir = DATA_DIR
     dataType = 'train' if train else 'val'
-    IMAGE_NAMES = [image_datadir + '/' + line.strip() for line in open(base_path + '/labels/' + dataType + '/image_names.txt')]
-    BOXES = np.load(base_path + '/labels/' + dataType + '/labels.npy')
+    IMAGE_NAMES = [line.strip() for line in open(base_path + '/labels/image_names.txt')]
+    BOXES = np.load(base_path + '/labels/labels.npy')
 
 def get_random_image():
     randInd = random.randint(0, BOXES.shape[0] - 1)
     nameInd = BOXES[randInd, 4]
+    #print("Image Name: {}".format(IMAGE_NAMES[nameInd]))
     image = cv2.imread(IMAGE_NAMES[nameInd])[:,:,::-1]
     if len(image.shape) < 3:
         image = np.tile(image[:,:,np.newaxis], (1,1,3))
@@ -372,4 +376,3 @@ if __name__ == '__main__':
             drawing.drawRect(image, bbox, 1, [255,0,0])
             cv2.imwrite('images/%07d.png' % imCount, image[:,:,::-1])
         print('average time per frame %.5f' % np.mean(times))
-

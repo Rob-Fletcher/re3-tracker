@@ -12,8 +12,15 @@ def get_data_for_dataset(dataset_name, mode):
         gt = np.load(datadir + '/labels/' + mode + '/labels.npy')
         image_paths = [datadir + '/' + line.strip()
             for line in open(datadir + '/labels/' + mode + '/image_names.txt')]
+            
+    if dataset_name == 'cfa':
+        datadir = '/Users/rob9763/Documents/CFA/data/trainTracking/data'
+
+        gt = np.load(os.path.join(datadir, 'labels/labels.npy'))
+
+        image_paths = sorted(glob.glob(datadir+'/**/images/*'))
+
     return {
             'gt' : gt,
             'image_paths' : image_paths,
             }
-
