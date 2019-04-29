@@ -36,12 +36,16 @@ def main(args):
 #        imageNameFile = open('labels/' + label_type + '/image_names.txt', 'w')
 
     videos = sorted(glob.glob(data_dir+'/**'))
+    videos = [vid for vid in videos if not 'label' in vid and 'mp4' not in vid]
+    print("Videos to label: {}".format(videos))
+
     #print("videos: {}".format(videos))
 
     bboxes = []
     imNum = 0
     #totalImages = len(glob.glob(annotationPath + 'VID/' + label_type + wildcard + '*.xml'))
     #print('totalImages', totalImages)
+    allFrames = []
 
     for vv,video in enumerate(videos):
         #labels = sorted(glob.glob(video + '*.xml'))
@@ -53,12 +57,14 @@ def main(args):
         labels = ET.parse(os.path.join(video, video_name+'.xml'))
 
         trackColor = dict()
+        print("Making label for video: {}".format(video))
         for ii,imageName in enumerate(tqdm(images)):
             if not DEBUG:
                 # Leave off initial bit of path so we can just add parent dir to path later.
                 #imageNameFile.write(imageName + '\n')
                 pass
             #label = labels[ii]
+            allFrames.append(imageName)
             labelTree = labels.getroot()
             imgSize = get_image_size(images[ii])
             area = imgSize[0] * imgSize[1]
@@ -109,6 +115,9 @@ def main(args):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         np.save(os.path.join(save_dir, 'labels.npy'), bboxes)
+        with open(os.path.join(data_dir, 'labels/image_names.txt'), 'w') as f:
+            for frame in allFrames:
+                f.write("{}\n".format(frame))
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()

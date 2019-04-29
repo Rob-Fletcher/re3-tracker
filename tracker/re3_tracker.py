@@ -24,7 +24,7 @@ from constants import LOG_DIR
 from constants import GPU_ID
 from constants import MAX_TRACK_LENGTH
 
-SPEED_OUTPUT = True
+SPEED_OUTPUT = False
 
 class Re3Tracker(object):
     def __init__(self, gpu_id=GPU_ID):
@@ -257,5 +257,3 @@ class CopiedRe3Tracker(Re3Tracker):
                 sync_op = tf.assign(dst_var, src_var)
                 sync_ops.append(sync_op)
         return tf.group(*sync_ops)
-
-

@@ -32,10 +32,12 @@ from re3_utils.util import IOU
 from constants import CROP_PAD
 from constants import CROP_SIZE
 from constants import LSTM_SIZE
-#from constants import GPU_ID
+from constants import GPU_ID
 from constants import LOG_DIR
 from constants import OUTPUT_WIDTH
 from constants import OUTPUT_HEIGHT
+
+import mlflow
 
 HOST = 'localhost'
 NUM_ITERATIONS = int(1e6)
@@ -56,6 +58,11 @@ def main(FLAGS):
     np.set_printoptions(suppress=True)
     np.set_printoptions(precision=4)
 
+    # mlflow setup
+    mlflow.set_experiment("re3 Training")
+    mlflow.start_run()
+    mlflow.log_params(vars(FLAGS))
+    mlflow.log_params("Learning Rate", str(LEARNING_RATE))
     # Tensorflow setup
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
@@ -186,9 +193,15 @@ def main(FLAGS):
                             train_op, tfLoss, loss_summary_op],
                             feed_dict={learningRate : LEARNING_RATE})
                     summary_writer.add_summary(loss_summary, iteration)
+                    mlflow.log_metric("Loss Value", lossValue)
+                    mlflow.log_metric("Loss Summary", loss_summary)
+                    mlflow.log_metric("Iteration", iteration)
                 else:
                     _, lossValue = sess.run([train_op, tfLoss],
                             feed_dict={learningRate : LEARNING_RATE})
+                    mlflow.log_metric("Loss Value", lossValue)
+                    mlflow.log_metric("Loss Summary", loss_summary)
+                    mlflow.log_metric("Iteration", iteration)
             endSolver = time.time()
 
             numIters += 1
@@ -297,6 +310,7 @@ def main(FLAGS):
             print('Saving...')
             checkpoint_file = os.path.join(LOG_DIR, 'checkpoints', 'model.ckpt')
             saver.save(sess, checkpoint_file, global_step=iteration)
+        mlflow.end_run()
         raise
 
 if __name__ == '__main__':
